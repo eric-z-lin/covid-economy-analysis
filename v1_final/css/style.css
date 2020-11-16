@@ -59,6 +59,11 @@
   text-anchor: middle;
 }
 
+#vis .sub-text {
+  font-size:48px;
+  text-anchor: middle;
+}
+
 .axis path,
 .axis line {
   fill: none;

@@ -54,7 +54,7 @@ class SalesLine {
 		vis.line = [];
 
 		// iterate over configs to create linepaths and lines for each product
-		vis.configs.forEach(function(product, index) {
+		vis.configs.forEach(function (product, index) {
 			vis.linepath[index] = d3.line()
 				.x(d => vis.x(d.month))
 				.y(d => vis.y(d[product]));
@@ -75,13 +75,11 @@ class SalesLine {
 			vis.displayData = vis.data.filter((value, index) => {
 				return ((value.month) >= (dateParser("Monday, January 1, 2007"))) && ((value.month) <= (dateParser("Tuesday, December 1, 2009")));
 			})
-		}
-		else if (selectedCategory == "covid_recession") {
+		} else if (selectedCategory == "covid_recession") {
 			vis.displayData = vis.data.filter((value, index) => {
 				return ((value.month) >= (dateParser("Sunday, December 1, 2019")));
 			})
-		}
-		else {
+		} else {
 			vis.displayData = vis.data;
 		}
 
@@ -94,22 +92,22 @@ class SalesLine {
 		let vis = this;
 
 		// update domains
-		vis.x.domain(d3.extent(vis.displayData, d=>d.month));
+		vis.x.domain(d3.extent(vis.displayData, d => d.month));
 		vis.y.domain([0, 110000])
 
 		// draw lines
-		vis.configs.forEach(function(product, index) {
+		vis.configs.forEach(function (product, index) {
 			vis.line[index]
 				.datum(vis.displayData)
 				// display product name when mouseover
-				.on("mouseover", function(event, d) {
+				.on("mouseover", function (event, d) {
 					vis.tooltip
 						.style("left", event.x + "px")
 						.style("top", event.y + "px")
 						.style("visibility", "visible")
 						.html(product);
 				})
-				.on("mouseout", function(){
+				.on("mouseout", function () {
 					vis.tooltip.style("visibility", "hidden");
 				})
 				.transition()

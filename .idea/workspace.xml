@@ -2,7 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d1ca6eff-ecb0-4314-8032-1d268969a917" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1-first-visualization/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/v1-first-visualization/js/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1-first-visualization/js/salesline.js" beforeDir="false" afterPath="$PROJECT_DIR$/v1-first-visualization/js/salesline.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1-other-visualizations-and-template/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/v1-other-visualizations-and-template/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1-other-visualizations-and-template/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/v1-other-visualizations-and-template/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1-other-visualizations-and-template/js/salesline.js" beforeDir="false" afterPath="$PROJECT_DIR$/v1-other-visualizations-and-template/js/salesline.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v1-other-visualizations-and-template/js/sections.js" beforeDir="false" afterPath="$PROJECT_DIR$/v1-other-visualizations-and-template/js/sections.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,11 +36,22 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1605486674953</updated>
-      <workItem from="1605486676051" duration="5371000" />
+      <workItem from="1605486676051" duration="5753000" />
+      <workItem from="1605509579468" duration="14792000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2078" y="-114" width="586" height="548" key="find.popup" timestamp="1605524779352">
+      <screen x="1440" y="-225" width="1920" height="1057" />
+    </state>
+    <state x="2078" y="-114" width="586" height="548" key="find.popup/0.23.1440.877/1440.-225.1920.1057@1440.-225.1920.1057" timestamp="1605524779352" />
+    <state x="2368" y="122" width="670" height="676" key="search.everywhere.popup" timestamp="1605522926298">
+      <screen x="1440" y="-225" width="1920" height="1057" />
+    </state>
+    <state x="2368" y="122" width="670" height="676" key="search.everywhere.popup/0.23.1440.877/1440.-225.1920.1057@1440.-225.1920.1057" timestamp="1605522926298" />
   </component>
 </project>

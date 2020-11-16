@@ -1,16 +1,15 @@
-
 /**
  * scrollVis - encapsulates
  * all the code for the visualization
  * using reusable charts pattern:
  * http://bost.ocks.org/mike/chart/
  */
-var scrollVis = function () {
+function scrollVis(salesData, salesConfigs) {
   // constants to define the size
   // and margins of the vis area.
   var width = 600;
   var height = 520;
-  var margin = { top: 0, left: 20, bottom: 40, right: 10 };
+  var margin = { top: 30, left: 20, bottom: 40, right: 10 };
 
   // Keep track of which visualization
   // we are on and which was the last
@@ -50,9 +49,6 @@ var scrollVis = function () {
   // Color is determined just by the index of the bars
   var barColors = { 0: '#008080', 1: '#399785', 2: '#5AAF8C' };
 
-  // The histogram display shows the
-  // first 30 minutes of data
-  // so the range goes from 0 to 30
   // @v4 using new scale name
   var xHistScale = d3.scaleLinear()
     .domain([0, 30])
@@ -95,6 +91,8 @@ var scrollVis = function () {
   // progress through the section.
   var updateFunctions = [];
 
+  let x_gdp, y_gdp;
+
   /**
    * chart
    *
@@ -104,6 +102,7 @@ var scrollVis = function () {
    */
   var chart = function (selection) {
     selection.each(function (rawData) {
+      console.log('raw', rawData);
       // create svg and give it a width and height
       svg = d3.select(this).selectAll('svg').data([wordData]);
       var svgE = svg.enter().append('svg');
@@ -122,7 +121,7 @@ var scrollVis = function () {
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
       // perform some preprocessing on raw data
-      var wordData = getWords(rawData);
+      var wordData = getWords(rawData['wordData']);
       // filter to just include filler words
       var fillerWords = getFillerWords(wordData);
 
@@ -140,12 +139,158 @@ var scrollVis = function () {
       var histMax = d3.max(histData, function (d) { return d.length; });
       yHistScale.domain([0, histMax]);
 
-      setupVis(wordData, fillerCounts, histData);
+      let salesData = rawData["salesData"];
+      let configs = rawData["configs"];
+      let gdpData = rawData["gdpData"];
+
+      setupVis(wordData, fillerCounts, histData, salesData, configs, gdpData);
 
       setupSections();
     });
   };
 
+  function generateSalesLine(svg, data, configs) {
+    // define scales and axes
+    let x = d3.scaleTime()
+        .range([50, width]);
+    let y = d3.scaleLinear()
+        .range([height, margin.top]);
+    let xAxis = d3.axisBottom()
+        .scale(x);
+    let yAxis = d3.axisLeft()
+        .scale(y);
+
+    // append axes
+    svg.append("g")
+        .attr("class", "x-axis axis")
+        .attr("id", "sales-xaxis")
+        .attr("transform", "translate(0," + height + ")");
+    svg.append("g")
+        .attr("class", "y-axis axis")
+        .attr("id", "sales-yaxis")
+        .attr("transform", "translate(50,0)");
+
+    // create tooltip
+    let tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "d3-tip")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden");
+
+    // create linepath and line arrays
+    let linepath = [];
+    let line = [];
+
+    // iterate over configs to create linepaths and lines for each product
+    configs.forEach(function(product, index) {
+      linepath[index] = d3.line()
+          .x(d => x(d.month))
+          .y(d => y(d[product]));
+      line[index] = svg.append("path")
+          .attr("class", "salesline");
+    });
+
+    // update domains
+    x.domain(d3.extent(salesData, d => d.month));
+    y.domain([0, 110000])
+
+    // draw lines
+    configs.forEach(function (product, index) {
+      line[index]
+          .datum(salesData)
+          // display product name when mouseover
+          .on("mouseover", function (event, d) {
+            tooltip
+                .style("left", event.x + "px")
+                .style("top", event.y + "px")
+                .style("visibility", "visible")
+                .html(product);
+          })
+          .on("mouseout", function () {
+            tooltip.style("visibility", "hidden");
+          })
+          .transition()
+          .duration(800)
+          .attr("fill", "none")
+          .attr("stroke-width", 1.5)
+          .attr("stroke", "steelblue")
+          .attr("d", linepath[index])
+    })
+
+    // update x axis
+    svg.select(".x-axis")
+        .transition()
+        .duration(800)
+        .call(xAxis);
+
+    // update y axis
+    svg.select(".y-axis")
+        .transition()
+        .duration(800)
+        .call(yAxis);
+
+    // Hide
+    svg.select('.x-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.select('.y-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.selectAll('.salesline')
+        .transition().duration(500)
+        .attr('stroke-width', 0);
+  }
+
+  function generateGDPBar(svg, gdpData){
+    // define scales and axes
+    x_gdp = d3.scaleBand()
+        .domain(d3.map(gdpData, d => d.Date))
+        .range([40, width])
+        .padding(0.2);
+    y_gdp = d3.scaleLinear()
+        .domain([18.0, 22.0])
+        .range([height, margin.top]);
+    let xAxis_gdp = d3.axisBottom()
+        .scale(x_gdp)
+        .tickValues([dateParserGDP('09-2019'), dateParserGDP('12-2019'), dateParserGDP('03-2020'), dateParserGDP('06-2020')])
+        .tickFormat(dateFormatter);
+    let yAxis_gdp = d3.axisLeft()
+        .scale(y_gdp);
+
+    // append axes
+    svg.append("g")
+        .attr("class", "gdp-x-axis axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis_gdp);
+    svg.append("g")
+        .attr("class", "gdp-y-axis axis")
+        .attr("transform", "translate(40,0)")
+        .call(yAxis_gdp);
+
+    // draw bars
+    svg.selectAll(".bar-gdp")
+        .data(gdpData)
+        .enter().append("rect")
+        .attr("class", "bar-gdp")
+        .attr("x", d => x_gdp(d.Date))
+        .attr("y", d => y_gdp(d.GDP))
+        .attr("width", x_gdp.bandwidth())
+        .attr("height", d => height - y_gdp(d.GDP))
+        .attr("fill", barColors[0]);
+
+    // Hide
+    svg.select('.gdp-x-axis')
+        .transition()
+        .duration(0)
+        .style('opacity', 0);
+    svg.select('.gdp-y-axis')
+        .transition()
+        .duration(0)
+        .style('opacity', 0);
+    svg.selectAll('.bar-gdp')
+        .style('opacity', 0);
+  }
 
   /**
    * setupVis - creates initial elements for all
@@ -156,7 +301,7 @@ var scrollVis = function () {
    *  element for each filler word type.
    * @param histData - binned histogram data
    */
-  var setupVis = function (wordData, fillerCounts, histData) {
+  var setupVis = function (wordData, fillerCounts, histData, salesData, configs, gdpData) {
     // axis
     g.append('g')
       .attr('class', 'x axis')
@@ -184,12 +329,12 @@ var scrollVis = function () {
         .attr('class', 'title credits-title')
         .attr('x', width / 2)
         .attr('y', height / 3)
-        .text('Thank You');
+        .text('Take Action');
     g.append('text')
-        .attr('class', 'sub-title credits-title')
+        .attr('class', 'sub-text credits-title')
         .attr('x', width / 2)
         .attr('y', (height / 3) + (height / 5))
-        .text('Stay Safe!');
+        .text('Support local businesses!');
     g.selectAll('.credits-title')
         .attr('opacity', 0);
 
@@ -226,7 +371,7 @@ var scrollVis = function () {
       .attr('opacity', 0);
 
     // barchart
-    // @v4 Using .merge here to ensure
+    // Using .merge here to ensure
     // new and old data have same attrs applied
     var bars = g.selectAll('.bar').data(fillerCounts);
     var barsE = bars.enter()
@@ -255,44 +400,22 @@ var scrollVis = function () {
     // histogram
     // @v4 Using .merge here to ensure
     // new and old data have same attrs applied
-    var hist = g.selectAll('.hist').data(histData);
-    var histE = hist.enter().append('rect')
-      .attr('class', 'hist');
-    hist = hist.merge(histE).attr('x', function (d) { return xHistScale(d.x0); })
-      .attr('y', height)
-      .attr('height', 0)
-      .attr('width', xHistScale(histData[0].x1) - xHistScale(histData[0].x0) - 1)
-      .attr('fill', barColors[0])
-      .attr('opacity', 0);
 
-    // cough title
-    g.append('text')
-      .attr('class', 'sub-title cough cough-title')
-      .attr('x', width / 2)
-      .attr('y', 60)
-      .text('cough')
-      .attr('opacity', 0);
+    // var hist = g.selectAll('.hist').data(histData);
+    // var histE = hist.enter().append('rect')
+    //   .attr('class', 'hist');
+    // hist = hist.merge(histE).attr('x', function (d) { return xHistScale(d.x0); })
+    //   .attr('y', height)
+    //   .attr('height', 0)
+    //   .attr('width', xHistScale(histData[0].x1) - xHistScale(histData[0].x0) - 1)
+    //   .attr('fill', barColors[0])
+    //   .attr('opacity', 0);
+    generateGDPBar(svg, gdpData);
 
-    // arrowhead from
-    // http://logogin.blogspot.com/2013/02/d3js-arrowhead-markers.html
-    svg.append('defs').append('marker')
-      .attr('id', 'arrowhead')
-      .attr('refY', 2)
-      .attr('markerWidth', 6)
-      .attr('markerHeight', 4)
-      .attr('orient', 'auto')
-      .append('path')
-      .attr('d', 'M 0,0 V 4 L6,2 Z');
 
-    g.append('path')
-      .attr('class', 'cough cough-arrow')
-      .attr('marker-end', 'url(#arrowhead)')
-      .attr('d', function () {
-        var line = 'M ' + ((width / 2) - 10) + ' ' + 80;
-        line += ' l 0 ' + 230;
-        return line;
-      })
-      .attr('opacity', 0);
+
+    generateSalesLine(svg, salesData, salesConfigs);
+
   };
 
   /**
@@ -309,10 +432,10 @@ var scrollVis = function () {
     activateFunctions[1] = showFillerTitle;
     activateFunctions[2] = showGrid;
     activateFunctions[3] = highlightGrid;
-    activateFunctions[4] = showBar;
-    activateFunctions[5] = showHistPart;
-    activateFunctions[6] = showHistAll;
-    activateFunctions[7] = showCough;
+    activateFunctions[4] = showHistPart;
+    activateFunctions[5] = showHistAll;
+    activateFunctions[6] = showConsumption;
+    activateFunctions[7] = showBar;
     activateFunctions[8] = showCredits;
 
     // updateFunctions are called while
@@ -414,22 +537,28 @@ var scrollVis = function () {
   /**
    * highlightGrid - show fillers in grid
    *
-   * hides: barchart, text and axis
+   * hides: histchart, text and axis
    * shows: square grid and highlighted
    *  filler words. also ensures squares
    *  are moved back to their place in the grid
    */
   function highlightGrid() {
-    hideAxis();
-    g.selectAll('.bar')
-      .transition()
-      .duration(600)
-      .attr('width', 0);
-
-    g.selectAll('.bar-text')
-      .transition()
-      .duration(0)
-      .attr('opacity', 0);
+    // g.selectAll('.hist')
+    //     .transition()
+    //     .duration(600)
+    //     .attr('height', function () { return 0; })
+    //     .attr('y', function () { return height; })
+    //     .style('opacity', 0);
+    svg.select('.gdp-x-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.select('.gdp-y-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.selectAll('.bar-gdp')
+        .transition()
+        .duration(600)
+        .style('opacity', 0);
 
 
     g.selectAll('.square')
@@ -458,6 +587,155 @@ var scrollVis = function () {
       .attr('fill', function (d) { return d.filler ? '#008080' : '#ddd'; });
   }
 
+
+  /**
+   * showHistPart - shows the first part
+   *  of the histogram of filler words
+   *
+   * hides: grid
+   * hides: last half of histogram
+   * shows: first half of histogram
+   *
+   */
+  function showHistPart() {
+    // switch the axis to histogram one
+    // showAxis(xAxisHist);
+    // hide
+    g.selectAll('.square')
+        .transition()
+        .duration(800)
+        .attr('opacity', 0);
+
+    g.selectAll('.fill-square')
+        .transition()
+        .duration(800)
+        .attr('x', 0)
+        .attr('y', function (d, i) {
+          return yBarScale(i % 3) + yBarScale.bandwidth() / 2;
+        })
+        .transition()
+        .duration(0)
+        .attr('opacity', 0);
+
+    // Show
+    svg.select('.gdp-x-axis')
+        .transition().duration(500)
+        .style('opacity', 1);
+    svg.select('.gdp-y-axis')
+        .transition().duration(500)
+        .style('opacity', 1);
+
+    // here we only show a bar if
+    // it is before the 15 minute mark
+    g.selectAll('.bar-gdp')
+      .transition()
+      .duration(600)
+      .style('opacity', function (d) { return (d.Date < dateParserGDP('04-2020')) ? 1.0 : 1e-6; });
+    svg.selectAll(".bar-gdp")
+      .transition()
+      .duration(600)
+      .attr('y', function (d) { return (d.Date < dateParserGDP('04-2020')) ? (y_gdp(d.GDP)) : height; })
+      .attr('height', function (d) { return (d.Date < dateParserGDP('04-2020')) ? height - (y_gdp(d.GDP)) : 0; })
+      .style('opacity', function (d) { return (d.Date < dateParserGDP('04-2020')) ? 1.0 : 1e-6; });
+
+  }
+
+  /**
+   * showHistAll - show all histogram
+   *
+   * hides: barchart
+   * (previous step is also part of the
+   *  histogram, so we don't have to hide
+   *  that)
+   * shows: all histogram bars
+   *
+   */
+  function showHistAll() {
+    // ensure the axis to histogram one
+    // showAxis(xAxisHist);
+    // Hide sales line
+    svg.select('.x-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.select('.y-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.selectAll('.salesline')
+        .transition().duration(500)
+        .attr('stroke-width', 0);
+
+    // named transition to ensure
+    // color change is not clobbered
+    // g.selectAll('.hist')
+    //   .transition('color')
+    //   .duration(500)
+    //   .style('fill', '#008080');
+    //
+    // g.selectAll('.hist')
+    //   .transition()
+    //   .duration(1200)
+    //   .attr('y', function (d) { return yHistScale(d.length); })
+    //   .attr('height', function (d) { return height - yHistScale(d.length); })
+    //   .style('opacity', 1.0);
+    svg.selectAll(".bar-gdp")
+        .transition()
+        .duration(1200)
+        .attr('y', function (d) { return y_gdp(d.GDP); })
+        .attr('height', function (d) { return height - (y_gdp(d.GDP)); })
+        .style('opacity', 1.0);
+
+  }
+
+  /**
+   * showConsumption
+   *
+   * hides: everything
+   * shows: Sophie's histogram
+   *
+   */
+  function showConsumption() {
+    // ensure the axis to histogram one
+    // showAxis(xAxisHist);
+    // Hide
+    // hideAxis();
+    // g.selectAll('.bar')
+    //     .transition()
+    //     .duration(600)
+    //     .attr('width', 0);
+    // g.selectAll('.bar-text')
+    //     .transition()
+    //     .duration(0)
+    //     .attr('opacity', 0);
+    // g.selectAll('.hist')
+    //     .transition()
+    //     .duration(600)
+    //     .attr('height', function () { return 0; })
+    //     .attr('y', function () { return height; })
+    //     .style('opacity', 0);
+    svg.select('.gdp-x-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.select('.gdp-y-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.selectAll('.bar-gdp')
+        .transition()
+        .duration(600)
+        .style('opacity', 0);
+
+    // Show line graph
+    // Sophie's sales line visualization
+    svg.select('.x-axis')
+        .transition().duration(500)
+        .style('opacity', 1);
+    svg.select('.y-axis')
+        .transition().duration(500)
+        .style('opacity', 1);
+    svg.selectAll('.salesline')
+        .transition().duration(500)
+        .attr('stroke-width', 1);
+  }
+
   /**
    * showBar - barchart
    *
@@ -469,127 +747,32 @@ var scrollVis = function () {
   function showBar() {
     // ensure bar axis is set
     // showAxis(xAxisBar);
-
-    g.selectAll('.square')
-      .transition()
-      .duration(800)
-      .attr('opacity', 0);
-
-    g.selectAll('.fill-square')
-      .transition()
-      .duration(800)
-      .attr('x', 0)
-      .attr('y', function (d, i) {
-        return yBarScale(i % 3) + yBarScale.bandwidth() / 2;
-      })
-      .transition()
-      .duration(0)
-      .attr('opacity', 0);
-
-    g.selectAll('.hist')
-      .transition()
-      .duration(600)
-      .attr('height', function () { return 0; })
-      .attr('y', function () { return height; })
-      .style('opacity', 0);
-
-    g.selectAll('.bar')
-      .transition()
-      .delay(function (d, i) { return 300 * (i + 1);})
-      .duration(600)
-      .attr('width', function (d) { return xBarScale(d.value); });
-
-    g.selectAll('.bar-text')
-      .transition()
-      .duration(600)
-      .delay(1200)
-      .attr('opacity', 1);
-  }
-
-  /**
-   * showHistPart - shows the first part
-   *  of the histogram of filler words
-   *
-   * hides: barchart
-   * hides: last half of histogram
-   * shows: first half of histogram
-   *
-   */
-  function showHistPart() {
-    // switch the axis to histogram one
-    // showAxis(xAxisHist);
-
-    g.selectAll('.bar-text')
-      .transition()
-      .duration(0)
-      .attr('opacity', 0);
-
-    g.selectAll('.bar')
-      .transition()
-      .duration(600)
-      .attr('width', 0);
-
-    // here we only show a bar if
-    // it is before the 15 minute mark
-    g.selectAll('.hist')
-      .transition()
-      .duration(600)
-      .attr('y', function (d) { return (d.x0 < 15) ? yHistScale(d.length) : height; })
-      .attr('height', function (d) { return (d.x0 < 15) ? height - yHistScale(d.length) : 0; })
-      .style('opacity', function (d) { return (d.x0 < 15) ? 1.0 : 1e-6; });
-  }
-
-  /**
-   * showHistAll - show all histogram
-   *
-   * hides: cough title and color
-   * (previous step is also part of the
-   *  histogram, so we don't have to hide
-   *  that)
-   * shows: all histogram bars
-   *
-   */
-  function showHistAll() {
-    // ensure the axis to histogram one
-    // showAxis(xAxisHist);
-
-    g.selectAll('.cough')
-      .transition()
-      .duration(0)
-      .attr('opacity', 0);
-
-    // named transition to ensure
-    // color change is not clobbered
-    g.selectAll('.hist')
-      .transition('color')
-      .duration(500)
-      .style('fill', '#008080');
-
-    g.selectAll('.hist')
-      .transition()
-      .duration(1200)
-      .attr('y', function (d) { return yHistScale(d.length); })
-      .attr('height', function (d) { return height - yHistScale(d.length); })
-      .style('opacity', 1.0);
-  }
-
-  /**
-   * showCough
-   *
-   * hides: nothing
-   * (previous and next sections are histograms
-   *  so we don't have to hide much here)
-   * shows: histogram
-   *
-   */
-  function showCough() {
-    // ensure the axis to histogram one
-    // showAxis(xAxisHist);
-
-    g.selectAll('.hist')
+    // Hide
+    svg.select('.x-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.select('.y-axis')
+        .transition().duration(500)
+        .style('opacity', 0);
+    svg.selectAll('.salesline')
+        .transition().duration(500)
+        .attr('stroke-width', 0);
+    g.selectAll('.credits-title')
         .transition()
-        .duration(0)
-        .attr('opacity', 0);
+        .duration(600)
+        .attr('opacity', 0.0);
+
+    g.selectAll('.bar')
+        .transition()
+        .delay(function (d, i) { return 300 * (i + 1);})
+        .duration(600)
+        .attr('width', function (d) { return xBarScale(d.value); });
+
+    g.selectAll('.bar-text')
+        .transition()
+        .duration(600)
+        .delay(1200)
+        .attr('opacity', 1);
   }
 
   /**
@@ -617,6 +800,26 @@ var scrollVis = function () {
       .style('opacity', 0);
   }
 
+
+  function showCredits() {
+    // Hide
+    hideAxis();
+    g.selectAll('.bar')
+        .transition()
+        .duration(600)
+        .attr('width', 0);
+    g.selectAll('.bar-text')
+        .transition()
+        .duration(0)
+        .attr('opacity', 0);
+
+    // Show
+    g.selectAll('.credits-title')
+        .transition()
+        .duration(600)
+        .attr('opacity', 1.0);
+  }
+
   /**
    * UPDATE FUNCTIONS
    *
@@ -629,38 +832,7 @@ var scrollVis = function () {
    *
    */
 
-  /**
-   * updateCough - increase/decrease
-   * cough text and color
-   *
-   * @param progress - 0.0 - 1.0 -
-   *  how far user has scrolled in section
-   */
-  function updateCough(progress) {
-    g.selectAll('.cough')
-      .transition()
-      .duration(0)
-      .attr('opacity', progress);
 
-    g.selectAll('.hist')
-      .transition('cough')
-      .duration(0)
-      .style('fill', function (d) {
-        return (d.x0 >= 14) ? coughColorScale(progress) : '#008080';
-      });
-  }
-
-  function showCredits() {
-    g.selectAll('.count-title')
-        .transition()
-        .duration(0)
-        .attr('opacity', 0);
-
-    g.selectAll('.credits-title')
-        .transition()
-        .duration(600)
-        .attr('opacity', 0.0);
-  }
 
   /**
    * DATA FUNCTIONS
@@ -682,7 +854,8 @@ var scrollVis = function () {
    * @param rawData - data read in from file
    */
   function getWords(rawData) {
-    return rawData.map(function (d, i) {
+    console.log(rawData);
+    return d3.map(rawData, function (d, i) {
       // is this word a filler word?
       d.filler = (d.filler === '1') ? true : false;
       // time in seconds word was spoken
@@ -741,11 +914,7 @@ var scrollVis = function () {
    * @param words
    */
   function groupByWord(words) {
-    return d3.nest()
-      .key(function (d) { return d.word; })
-      .rollup(function (v) { return v.length; })
-      .entries(words)
-      .sort(function (a, b) {return b.value - a.value;});
+    return d3.rollup(words, v => v.length, d=>d.word);
   }
 
   /**
@@ -777,6 +946,39 @@ var scrollVis = function () {
   return chart;
 };
 
+/**
+ * Get Data
+ * sales.csv
+ * gdp.csv
+ *
+ */
+// Function to convert date objects to strings or reverse
+// takes a date -> string
+let dateFormatter = d3.timeFormat("%b %Y");
+
+// takes a string -> date
+let dateParser = d3.timeParse("%A, %B%e, %Y");
+let dateParserGDP = d3.timeParse("%m-%Y");
+let salesData, gdpData, wordData;
+// names of columns
+let all_configs = ["All other gen. merchandise stores", "Automobile and other motor vehicle dealers",
+  "Automotive parts, acc., and tire stores", "Beer, wine and liquor stores", "Building mat. and garden equip. and supplies dealers",
+  "Building mat. and supplies dealers", "Clothing and clothing access. stores", "Clothing stores", "Department stores",
+  "Electronic shopping and mail order houses", "Electronics and appliance stores", "Food and beverage stores",
+  "Food services and drinking places", "Fuel dealers", "Furniture and home furnishings stores",
+  "Furniture, home furn, electronics, and appliance stores", "Gasoline stations", "General merchandise stores", "Grocery stores",
+  "Health and personal care stores", "Jewelry stores", "Men's clothing stores", "Miscellaneous stores retailers", "Motor vehicle and parts dealers",
+  "Nonstore retailers", "Other general merchandise stores", "Pharmacies and drug stores", "Retail and food services sales, total",
+  "Shoe stores", "Sporting goods, hobby, musical instrument, and book stores", "Warehouse clubs and superstores", "Women's clothing stores"]
+
+let some_configs = ["Motor vehicle and parts dealers", "Electronics and appliance stores",
+  "Food and beverage stores", "Beer, wine and liquor stores",
+  "Gasoline stations", "Clothing stores", "Sporting goods, hobby, musical instrument, and book stores",
+  "General merchandise stores", "Grocery stores", "Warehouse clubs and superstores", "Electronic shopping and mail order houses",
+  "Food services and drinking places"]
+
+
+
 
 /**
  * display - called once data
@@ -786,12 +988,18 @@ var scrollVis = function () {
  *
  * @param data - loaded tsv data
  */
-function display(data) {
+function display(wordData, salesData, gdpData, configs) {
   // create a new plot and
   // display it
-  var plot = scrollVis();
+  var plot = scrollVis(salesData, configs);
+  let allData = {
+    'wordData': wordData,
+    'salesData': salesData,
+    'gdpData': gdpData,
+    'configs': configs
+  }
   d3.select('#vis')
-    .datum(data)
+    .datum(allData)
     .call(plot);
 
   // setup scroll functionality
@@ -816,5 +1024,39 @@ function display(data) {
   // });
 }
 
+Promise.all([
+  d3.csv("data/sales.csv"),
+  d3.csv("data/gdp_clean.csv"),
+  d3.tsv("data/words.tsv"),
+]).then(function(files) {
+  // files[0] will contain file1.csv
+  // files[1] will contain file2.csv
+  console.log(files[0])
+  console.log(files[1])
+
+  salesData = files[0];
+  gdpData = files[1];
+  wordData = files[2];  // Dummy data used in tutorial
+
+  // convert string to date
+  salesData.forEach(function(row){
+    row.month = dateParser(row.month);
+    some_configs.forEach(function(d) {
+      row[d] = +row[d];
+    })
+  });
+
+  gdpData.forEach(function(row){
+    row.Date = dateParserGDP(row.Date);
+    row.GDP = +row.GDP;
+  });
+
+  display(wordData, salesData, gdpData, some_configs);
+
+}).catch(function(err) {
+  // handle error here
+  console.log("Couldn't load data", err)
+})
+
 // load data and display
-d3.tsv('data/words.tsv', display);
+// d3.tsv('data/words.tsv', display);
