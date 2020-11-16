@@ -171,7 +171,7 @@ function scrollVis(salesData, salesConfigs) {
         .attr("transform", "translate(50,0)");
 
     // create tooltip
-    let tooltip = d3.select("body")
+    let tooltip = d3.select("#vis")
         .append("div")
         .attr("class", "d3-tip")
         .style("position", "absolute")
@@ -202,8 +202,8 @@ function scrollVis(salesData, salesConfigs) {
           // display product name when mouseover
           .on("mouseover", function (event, d) {
             tooltip
-                .style("left", event.x + "px")
-                .style("top", event.y + "px")
+                .style("left", event.x - 300 + "px")
+                .style("top", event.y - 100 + "px")
                 .style("visibility", "visible")
                 .html(product);
           })
@@ -213,8 +213,8 @@ function scrollVis(salesData, salesConfigs) {
           .transition()
           .duration(800)
           .attr("fill", "none")
-          .attr("stroke-width", 1.5)
-          .attr("stroke", "steelblue")
+          .attr("stroke-width", 3)
+          .attr("stroke", "#008080")
           .attr("d", linepath[index])
     })
 
@@ -268,10 +268,32 @@ function scrollVis(salesData, salesConfigs) {
         .attr("transform", "translate(40,0)")
         .call(yAxis_gdp);
 
+    // create tooltip
+    let tooltip1 = d3.select("#vis")
+        .append("div")
+        .attr("class", "d3-tip")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden");
+
     // draw bars
     svg.selectAll(".bar-gdp")
         .data(gdpData)
         .enter().append("rect")
+        .on("mouseover", function (event, d) {
+          d3.select(this)
+              .attr("fill", "#004949");
+          tooltip1
+              .style("left", event.x - 300 + "px")
+              .style("top", event.y - 100 + "px")
+              .style("visibility", "visible")
+              .html(d.GDP);
+        })
+        .on("mouseout", function () {
+          d3.select(this)
+              .attr("fill", "#008080");
+          tooltip1.style("visibility", "hidden");
+        })
         .attr("class", "bar-gdp")
         .attr("x", d => x_gdp(d.Date))
         .attr("y", d => y_gdp(d.GDP))
@@ -694,24 +716,6 @@ function scrollVis(salesData, salesConfigs) {
    *
    */
   function showConsumption() {
-    // ensure the axis to histogram one
-    // showAxis(xAxisHist);
-    // Hide
-    // hideAxis();
-    // g.selectAll('.bar')
-    //     .transition()
-    //     .duration(600)
-    //     .attr('width', 0);
-    // g.selectAll('.bar-text')
-    //     .transition()
-    //     .duration(0)
-    //     .attr('opacity', 0);
-    // g.selectAll('.hist')
-    //     .transition()
-    //     .duration(600)
-    //     .attr('height', function () { return 0; })
-    //     .attr('y', function () { return height; })
-    //     .style('opacity', 0);
     svg.select('.gdp-x-axis')
         .transition().duration(500)
         .style('opacity', 0);
