@@ -27,6 +27,9 @@ let some_configs = ["Motor vehicle and parts dealers", "Electronics and applianc
 
 let salesLine = [];
 
+d3.csv = function (csv) {
+	
+}
 // load data
 d3.csv("data/sales.csv").then(csv=>{
 
