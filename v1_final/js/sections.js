@@ -93,6 +93,8 @@ function scrollVis(salesData, salesConfigs) {
 
   let x_gdp, y_gdp;
 
+  let tooltip_sales, tooltip_bars;
+
   /**
    * chart
    *
@@ -170,14 +172,6 @@ function scrollVis(salesData, salesConfigs) {
         .attr("id", "sales-yaxis")
         .attr("transform", "translate(50,0)");
 
-    // create tooltip
-    let tooltip = d3.select("#vis")
-        .append("div")
-        .attr("class", "d3-tip")
-        .style("position", "absolute")
-        .style("z-index", "10")
-        .style("visibility", "hidden");
-
     // create linepath and line arrays
     let linepath = [];
     let line = [];
@@ -195,20 +189,28 @@ function scrollVis(salesData, salesConfigs) {
     x.domain(d3.extent(salesData, d => d.month));
     y.domain([0, 110000])
 
+    // // create tooltip
+    // tooltip_sales = d3.select("#vis")
+    //     .append("div")
+    //     .attr("class", "d3-tip-sales")
+    //     .style("position", "absolute")
+    //     .style("z-index", "10")
+    //     .style("visibility", "hidden");
+
     // draw lines
     configs.forEach(function (product, index) {
       line[index]
           .datum(salesData)
           // display product name when mouseover
           .on("mouseover", function (event, d) {
-            tooltip
+            tooltip_sales
                 .style("left", event.x - 300 + "px")
                 .style("top", event.y - 100 + "px")
                 .style("visibility", "visible")
                 .html(product);
           })
           .on("mouseout", function () {
-            tooltip.style("visibility", "hidden");
+            tooltip_sales.style("visibility", "hidden");
           })
           .transition()
           .duration(800)
@@ -268,13 +270,13 @@ function scrollVis(salesData, salesConfigs) {
         .attr("transform", "translate(40,0)")
         .call(yAxis_gdp);
 
-    // create tooltip
-    let tooltip1 = d3.select("#vis")
-        .append("div")
-        .attr("class", "d3-tip")
-        .style("position", "absolute")
-        .style("z-index", "10")
-        .style("visibility", "hidden");
+    // // create tooltip
+    // tooltip_bars = d3.select("#vis")
+    //     .append("div")
+    //     .attr("class", "d3-tip-bars")
+    //     .style("position", "absolute")
+    //     .style("z-index", "10")
+    //     .style("visibility", "hidden");
 
     // draw bars
     svg.selectAll(".bar-gdp")
@@ -283,7 +285,7 @@ function scrollVis(salesData, salesConfigs) {
         .on("mouseover", function (event, d) {
           d3.select(this)
               .attr("fill", "#004949");
-          tooltip1
+          tooltip_bars
               .style("left", event.x - 300 + "px")
               .style("top", event.y - 100 + "px")
               .style("visibility", "visible")
@@ -292,7 +294,7 @@ function scrollVis(salesData, salesConfigs) {
         .on("mouseout", function () {
           d3.select(this)
               .attr("fill", "#008080");
-          tooltip1.style("visibility", "hidden");
+          tooltip_bars.style("visibility", "hidden");
         })
         .attr("class", "bar-gdp")
         .attr("x", d => x_gdp(d.Date))
@@ -501,6 +503,9 @@ function scrollVis(salesData, salesConfigs) {
       .duration(0)
       .attr('opacity', 0);
 
+    d3.selectAll('.d3-tip-sales').remove();
+    d3.selectAll('.d3-tip-bars').remove();
+
     g.selectAll('.covid-title')
       .transition()
       .duration(600)
@@ -526,6 +531,9 @@ function scrollVis(salesData, salesConfigs) {
       .duration(0)
       .attr('opacity', 0);
 
+    d3.selectAll('.d3-tip-sales').remove();
+    d3.selectAll('.d3-tip-bars').remove();
+
     g.selectAll('.count-title')
       .transition()
       .duration(600)
@@ -545,6 +553,9 @@ function scrollVis(salesData, salesConfigs) {
       .transition()
       .duration(0)
       .attr('opacity', 0);
+
+    d3.selectAll('.d3-tip-sales').remove();
+    d3.selectAll('.d3-tip-bars').remove();
 
     g.selectAll('.square')
       .transition()
@@ -582,6 +593,8 @@ function scrollVis(salesData, salesConfigs) {
         .duration(600)
         .style('opacity', 0);
 
+    d3.selectAll('.d3-tip-sales').remove();
+    d3.selectAll('.d3-tip-bars').remove();
 
     g.selectAll('.square')
       .transition()
@@ -639,6 +652,16 @@ function scrollVis(salesData, salesConfigs) {
         .duration(0)
         .attr('opacity', 0);
 
+    d3.selectAll('.d3-tip-sales').remove();
+
+    // create tooltip
+    tooltip_bars = d3.select("#vis")
+        .append("div")
+        .attr("class", "d3-tip-bars")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden");
+
     // Show
     svg.select('.gdp-x-axis')
         .transition().duration(500)
@@ -686,6 +709,15 @@ function scrollVis(salesData, salesConfigs) {
         .transition().duration(500)
         .attr('stroke-width', 0);
 
+    d3.selectAll('.d3-tip-sales').remove();
+    // create tooltip
+    tooltip_bars = d3.select("#vis")
+        .append("div")
+        .attr("class", "d3-tip-bars")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden");
+
     // named transition to ensure
     // color change is not clobbered
     // g.selectAll('.hist')
@@ -705,7 +737,6 @@ function scrollVis(salesData, salesConfigs) {
         .attr('y', function (d) { return y_gdp(d.GDP); })
         .attr('height', function (d) { return height - (y_gdp(d.GDP)); })
         .style('opacity', 1.0);
-
   }
 
   /**
@@ -726,6 +757,16 @@ function scrollVis(salesData, salesConfigs) {
         .transition()
         .duration(600)
         .style('opacity', 0);
+
+    d3.selectAll('.d3-tip-bars').remove();
+
+    // create sales tooltip
+    tooltip_sales = d3.select("#vis")
+        .append("div")
+        .attr("class", "d3-tip-sales")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden");
 
     // Show line graph
     // Sophie's sales line visualization
@@ -765,6 +806,9 @@ function scrollVis(salesData, salesConfigs) {
         .transition()
         .duration(600)
         .attr('opacity', 0.0);
+
+    d3.selectAll('.d3-tip-sales').remove();
+    d3.selectAll('.d3-tip-bars').remove();
 
     g.selectAll('.bar')
         .transition()
