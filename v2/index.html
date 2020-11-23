@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>COVID 19 Economic Analysis</title>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body>
+<div class="container">
+  <div id='graphic'>
+    <div id='sections'>
+      <section class="step">
+        <div class="title">COVID 19 Economic Analysis</div>
+        The COVID-19 pandemic has caused a severe change in consumer spending. Let us take a deeper dive into the data, the stories behind it, and the implications.
+      </section>
+      <section class="step">
+        <div class="title">Only the Beginning</div>
+        "We haven't even begun to see the end of it yet" ~ Dr. Fauci on July 13, 2020. <br>
+        By November 2020, over 12.6 million people in the U.S. have been infected by COVID-19.
+      </section>
+      <section class="step">
+        <div class="title">When it All Began...</div>
+        On February 29, 2020, Washington state (orange) became the first to announce a state of emergency due to COVID-19.
+        Two and a half weeks later, California (red) became the first state to institute a state-wide lockdown on March 19, 2020.
+        <br>
+        <b>Visualization:</b> Each square represents a different state in the U.S., ordered by when they declared a state of emergency.
+      </section>
+
+      <section class="step">
+        <div class="title">Lockdowns in March</div>
+        Following California's lead, 32 states announced state-wide lockdowns (red) and 12 other states
+        announced partial lockdowns (orange) by March 31st, 2020. In March alone, 316 million people across 42 states
+        were being urged to stay home. <br>
+        <b>Visualization:</b> <span style="color:red;">Red</span> squares represent full state-wide lockdowns and <span style="color:orange;">orange</span> squares represent partial lockdowns.
+      </section>
+
+      <section class="step">
+        <div class="title">A New Normal</div>
+        In the period of three weeks, virtually the entire U.S. had to adopt to a new normal.
+        One in which hinderd people from working, buying, and traveling. <br>
+        <b>Visualization:</b><span style="color:red;">Red</span> squares represent full state-wide lockdowns and <span style="color:orange;">orange</span> squares represent partial lockdowns.
+      </section>
+
+      <section class="step">
+        <div class="title">A Sharp Drop</div>
+        Following lockdowns in March of 2020, consumer expenditure in the U.S. experienced a sharp drop.
+        At the same time, there has been a surge in usage of Zoom and other technological services.
+      </section>
+
+      <section class="step">
+        <div class="title">The Recovery So Far</div>
+        As some states eased lockdown measures, GDP and consumer expenditure has rebounded slightly, although we are nowhere close to a full recovery.
+      </section>
+
+      <section class="step">
+        <div class="title">A Tale of Two Recessions</div>
+        Public concern for the U.S. economy is reminiscent of the 2008-09 recession.
+        We see here in the graph of U.S. consumer expenditures that the COVID-19 recession has experienced a much sharper
+        drop and rebound compared to 2008-10.
+      </section>
+
+      <section class="step">
+        <div class="title">Consumer Expenditure</div>
+        Let's see how people spent their money in different sectors for COVID.
+        Some sectors, like food and technology, have rebounded. Others, like gas, have remained stagnant.
+        This points to a striking imbalance in our current economy -- while some sectors are ruined beyond repair, others are thriving.
+      </section>
+
+      <section class="step">
+        <div class="title">Federal Funding</div>
+        Here you can see the distribution of federal funding through PPP (paycheck protection program).
+        It's clear that people in many states have clearly not received enough government loans. <br>
+        Without these government loans (akin to 2008's financial bailouts), thousands of small businesses
+        are struggling to survive. We encourage you to ask your congress representatives to fight for more
+        legislation to help out your local economy!
+      </section>
+
+      <section class="step">
+        <div class="title">Credits</div>
+        Visualization created by Sophie Sun, Verena Lin, and Eric Lin. Special thanks to Yalong and the entire CS 171 teaching staff of Fall 2020.
+      </section>
+    </div>
+    <div id='vis'>
+      <div id="mapDiv" style="height: 70vh; width: 90vh;"></div>
+    </div>
+    <div id="extra-space">
+    </div>
+  </div>
+</div>
+
+
+<!--<script src="lib/d3.js"></script>-->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="js/scroller.js"></script>
+<script src="js/sections.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<!--ppp map-->
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script src="https://d3js.org/d3-geo.v1.min.js"></script>
+<script src="js/helpers.js"></script>
+<script src="js/mapVis.js"></script>
+</body>
+</html>
