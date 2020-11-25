@@ -1084,8 +1084,6 @@ let some_configs = ["Motor vehicle and parts dealers", "Electronics and applianc
     "Food services and drinking places"]
 
 
-
-
 /**
  * display - called once data
  * has been loaded.
