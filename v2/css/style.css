@@ -100,3 +100,13 @@
     padding-top: 11px;
     background-color: lightgrey;
 }
+
+.d3-tip-grid {
+    position: absolute;
+    border: 2px solid;
+    padding-bottom: 10px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 11px;
+    background-color: lightgrey;
+}

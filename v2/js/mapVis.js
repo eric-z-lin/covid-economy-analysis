@@ -88,18 +88,12 @@ class MapVis {
             .attr("class", "x-axis axis")
             .attr('transform', `translate(${mapObject.width * 2.8 / 4.5}, ${mapObject.height - 20})`)
 
-        console.log(mapObject);
-
         mapObject.wrangleData()
 
     }
 
     wrangleData() {
         let mapObject = this;
-
-        // check out the data
-        // console.log(mapObject.covidData)
-        // console.log(mapObject.usaData)
 
         // first, filter according to selectedTimeRange, init empty array
         let filteredData = [];
@@ -109,9 +103,6 @@ class MapVis {
 
         // prepare covid data by grouping all rows by state
         let pppDataByState = Array.from(d3.group(filteredData, d => d.State), ([key, value]) => ({key, value}))
-
-        // have a look
-        console.log(pppDataByState)
 
         // init final data structure in which both data sets will be merged into
         mapObject.stateInfo = []
@@ -190,7 +181,6 @@ class MapVis {
         let returnValue = [];
         mapObject.stateInfo.forEach( state => {
             if (stateName === state.state) {
-                console.log(state)
                 returnValue = state;
             }
         })
@@ -203,7 +193,6 @@ class MapVis {
         // update color domain
         mapObject.colors.domain([0,
             d3.max(mapObject.stateInfo, function(d){
-                console.log(d.relLoanCount)
                 return d[mapObject.selectedCategory];
             })
         ]);
@@ -251,14 +240,12 @@ class MapVis {
         // draw legend axis
         mapObject.legendScale.domain([0,
             d3.max(mapObject.stateInfo, function(d){
-                // console.log(d)
                 return d[mapObject.selectedCategory];
             })
         ]);
         mapObject.svg.select(".x-axis").call(mapObject.legendAxis);
 
         // append legend
-        // console.log(mapObject.colors);
         mapObject.linearGradient.append("stop")
             .attr("offset", "0%")
             .attr("stop-color", '#f9f9f9');

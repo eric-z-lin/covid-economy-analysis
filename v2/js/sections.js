@@ -91,7 +91,7 @@ function scrollVis(salesData, salesConfigs) {
 
     let x_gdp, y_gdp;
 
-    let tooltip_sales, tooltip_bars;
+    let tooltip_sales, tooltip_bars, tooltip_grid;
 
     /**
      * chart
@@ -252,7 +252,7 @@ function scrollVis(salesData, salesConfigs) {
         y_gdp = d3.scaleLinear()
             .domain([18.0, 22.0])
             .range([height, margin.top]);
-        tooltip_bars = d3.select("d3-tip-bars");
+        tooltip_bars = d3.select(".d3-tip-bars");
         let xAxis_gdp = d3.axisBottom()
             .scale(x_gdp)
             .tickValues([dateParserGDP('09-2019'), dateParserGDP('12-2019'), dateParserGDP('03-2020'), dateParserGDP('06-2020')])
@@ -260,11 +260,12 @@ function scrollVis(salesData, salesConfigs) {
         let yAxis_gdp = d3.axisLeft()
             .scale(y_gdp);
 
-        // append axes
+        // append axes and labels
         svg.append("g")
             .attr("class", "gdp-x-axis axis")
             .attr("transform", "translate(0," + height + ")")
             .call(xAxis_gdp);
+
         svg.append("g")
             .attr("class", "gdp-y-axis axis")
             .attr("transform", "translate(40,0)")
@@ -324,11 +325,23 @@ function scrollVis(salesData, salesConfigs) {
     }
 
     function generateMapGrid(svg, stateMapData){
-        let squares_map = g.selectAll('.state-square').data(stateMapData, function (d) { return d.Abbreviation; });
+        let squares_map = g.selectAll('.state-square')
+            .data(stateMapData, d=> d.Abbreviation);
         let squaresE_map = squares_map.enter()
             .append('rect')
             .classed('state-square', true);
-        squares_map = squares_map.merge(squaresE_map)
+        squares_map = squares_map
+            .merge(squaresE_map)
+            .on("mouseover", function (event, d) {
+                tooltip_grid
+                    .style("left", event.x - 600 + "px")
+                    .style("top", event.y - 150 + "px")
+                    .style("visibility", "visible")
+                    .html("State: " + d.Abbreviation);
+            })
+            .on("mouseout", function () {
+                tooltip_grid.style("visibility", "hidden");
+            })
             .attr('width', map_squareSize)
             .attr('height', map_squareSize)
             .attr('fill', 'lightgray')
@@ -414,7 +427,8 @@ function scrollVis(salesData, salesConfigs) {
         var squaresE = squares.enter()
             .append('rect')
             .classed('square', true);
-        squares = squares.merge(squaresE)
+        squares = squares
+            .merge(squaresE)
             .attr('width', squareSize)
             .attr('height', squareSize)
             .attr('fill', '#fff')
@@ -684,6 +698,12 @@ function scrollVis(salesData, salesConfigs) {
             .style('opacity', 0);
         d3.selectAll('.d3-tip-sales').remove();
         d3.selectAll('.d3-tip-bars').remove();
+
+        // create tooltip
+        tooltip_grid  = d3.select("#vis")
+            .append("div")
+            .attr("class", "d3-tip-grid")
+            .style("visibility", "hidden");
 
         // Show
         map_squareSize = 36;
@@ -1180,6 +1200,3 @@ Promise.all([
     // handle error here
     console.log("Couldn't load data", err)
 })
-
-// load data and display
-// d3.tsv('data/words.tsv', display);
