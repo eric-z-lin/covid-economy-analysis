@@ -646,6 +646,13 @@ function scrollVis(salesData, salesConfigs) {
             .duration(600)
             .style('opacity', 0);
 
+        // create tooltip
+        tooltip_grid  = d3.select("#vis")
+            .append("div")
+            .attr("class", "d3-tip-grid")
+            .style("visibility", "hidden");
+
+
         d3.selectAll('.d3-tip-sales').remove();
         d3.selectAll('.d3-tip-bars').remove();
 
@@ -887,7 +894,7 @@ function scrollVis(salesData, salesConfigs) {
             .style("opacity", 1);
         svg.selectAll('.salesline')
             .transition().duration(500)
-            .attr('stroke-width', 1);
+            .attr('stroke-width', 3);
     }
 
     /**
