@@ -1,3 +1,8 @@
+body {
+    font-family: Avenir;
+    background-color: #121212;
+    color: #F0F4F8;
+}
 
 .container {
     width: 890px;
@@ -6,7 +11,6 @@
 #graphic {
     padding-top: 60px;
 }
-
 
 #sections {
     position: relative;
@@ -19,18 +23,18 @@
 
 .step {
     margin-bottom: 200px;
-    font-family: "TiemposTextWeb-Regular","Georgia";
+    font-family: Avenir;
     font-size: 16px;
     line-height: 23px;
-    color: #767678;
+    color: #F0F2FC;
 }
 
 #sections .title {
-    font-family: Arial,Helvetica,"san-serif";
-    font-size: 16px;
+    font-family: Avenir;
+    font-size: 20px;
     font-weight: bold;
-    margin-bottom: 2px;
-    color: #262626;
+    margin-bottom: 15px;
+    color: #829ABD;
     line-height: 1.2em;
 }
 
@@ -52,16 +56,19 @@
 #vis .title {
     font-size:100px;
     text-anchor: middle;
+    fill: #486581;
 }
 
 #vis .sub-title {
     font-size:72px;
     text-anchor: middle;
+    fill: #F0F4F8;
 }
 
 #vis .sub-text {
     font-size:48px;
     text-anchor: middle;
+    fill: #F0F4F8;
 }
 
 .axis path,
@@ -83,22 +90,24 @@
 
 .d3-tip-bars {
     position: absolute;
-    border: 2px solid;
     padding-bottom: 10px;
     padding-left: 25px;
     padding-right: 25px;
     padding-top: 11px;
-    background-color: lightgrey;
+    background-color: #627D98;
+    color: white;
+    border-radius: 5px;
 }
 
 .d3-tip-sales {
     position: absolute;
-    border: 2px solid;
     padding-bottom: 10px;
     padding-left: 25px;
     padding-right: 25px;
     padding-top: 11px;
-    background-color: lightgrey;
+    background-color: #627D98;
+    color: white;
+    border-radius: 5px;
 }
 
 .d3-tip-grid {
@@ -108,5 +117,14 @@
     padding-left: 25px;
     padding-right: 25px;
     padding-top: 11px;
-    background-color: lightgrey;
+    background-color: #627D98;
+    color: white;
+}
+
+h3 {
+    font-size: 15px;
+}
+
+h4 {
+    font-size: 12px;
 }

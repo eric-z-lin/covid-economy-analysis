@@ -55,7 +55,7 @@ class MapVis {
         mapObject.map.append("path")
             .datum(topojson.mesh(mapObject.us, mapObject.us.objects.states, (a, b) => a !== b))
             .attr("fill", "none")
-            .attr("stroke", "white")
+            .attr("stroke", "#627D98")
             .attr("stroke-linejoin", "round")
             .attr("pointer-events", "none")
             .attr("d", mapObject.path);
@@ -214,7 +214,7 @@ class MapVis {
                     .style("left", event.pageX + 20 + "px")
                     .style("top", event.pageY + "px")
                     .html(`
-                <div style="border: thin solid grey; border-radius: 5px; background: lightgrey; padding: 20px">
+                <div style="border: thin solid grey; border-radius: 5px; background: #627D98; padding: 20px">
                      <h3> ${thisStatesInfo.state}<h3>
                      <h4> Population: ${thisStatesInfo.population}</h4>
                      <h4> Loans (absolute): ${thisStatesInfo.loanCount}</h4>

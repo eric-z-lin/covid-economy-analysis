@@ -66,7 +66,7 @@ function scrollVis(salesData, salesConfigs) {
         .range([0, height - 50], 0.1, 0.1);
 
     // Color is determined just by the index of the bars
-    var barColors = { 0: '#008080', 1: '#399785', 2: '#5AAF8C' };
+    var barColors = { 0: '#EAA0A1', 1: '#FFDADC', 2: '#FFFFFF' };
 
     // @v4 using new scale name
     var xHistScale = d3.scaleLinear()
@@ -181,7 +181,7 @@ function scrollVis(salesData, salesConfigs) {
                 .duration(800)
                 .attr("fill", "none")
                 .attr("stroke-width", 3)
-                .attr("stroke", "#008080")
+                .attr("stroke", "#EAA0A1")
                 .attr("d", linepath[index]);
         })
 
@@ -288,7 +288,7 @@ function scrollVis(salesData, salesConfigs) {
             .enter().append("rect")
             .on("mouseover", function (event, d) {
                 d3.select(this)
-                    .attr("fill", "#004949");
+                    .attr("fill", "#EAA0A1");
                 tooltip_bars
                     .style("left", event.x - 600 + "px")
                     .style("top", event.y - 150 + "px")
@@ -297,7 +297,7 @@ function scrollVis(salesData, salesConfigs) {
             })
             .on("mouseout", function () {
                 d3.select(this)
-                    .attr("fill", "#008080");
+                    .attr("fill", "#FFDADC");
                 tooltip_bars.style("visibility", "hidden");
             })
             .attr("class", "bar-gdp")
@@ -379,6 +379,7 @@ function scrollVis(salesData, salesConfigs) {
             .attr('class', 'title covid-title')
             .attr('x', width / 2)
             .attr('y', height / 3)
+            .style('fill', '#829ABD')
             .text('COVID-19');
 
         g.append('text')
@@ -409,7 +410,8 @@ function scrollVis(salesData, salesConfigs) {
             .attr('class', 'title count-title highlight')
             .attr('x', width / 2)
             .attr('y', height / 3)
-            .text('12.6 Million');
+            .text('12.6 Million')
+            .style("color", "#EAA0A1");
 
         g.append('text')
             .attr('class', 'sub-title count-title')
@@ -419,6 +421,12 @@ function scrollVis(salesData, salesConfigs) {
 
         g.selectAll('.count-title')
             .attr('opacity', 0);
+
+        // Images
+        g.append('image')
+            .attr('width', width)
+            .attr('height', height)
+            .attr("xlink:href", "covid.png")
 
         // square grid
         // @v4 Using .merge here to ensure
@@ -604,10 +612,10 @@ function scrollVis(salesData, salesConfigs) {
             })
             .attr('fill', function (d) {
                 if (d.Id === 0){
-                    return 'orange';
+                    return '#8FA4D2';
                 }
                 else if (d.Id === 2){
-                    return 'red';
+                    return '#EAA0A1';
                 }
                 else {
                     return 'lightgray';
@@ -680,10 +688,10 @@ function scrollVis(salesData, salesConfigs) {
                     return 'lightgray';
                 }
                 else if (d.Lockdown === 1) {
-                    return 'orange';
+                    return '#8FA4D2';
                 }
                 else if (d.Lockdown === 2) {
-                    return 'red';
+                    return '#EAA0A1';
                 }
             });
     }
@@ -726,10 +734,10 @@ function scrollVis(salesData, salesConfigs) {
                     return 'lightgray';
                 }
                 else if (d.Lockdown === 1) {
-                    return 'orange';
+                    return '#8FA4D2';
                 }
                 else if (d.Lockdown === 2) {
-                    return 'red';
+                    return '#EAA0A1';
                 }
             });
 
@@ -786,13 +794,13 @@ function scrollVis(salesData, salesConfigs) {
         g.selectAll('.bar-gdp')
             .transition()
             .duration(600)
-            .style('opacity', function (d) { return (d.Date < dateParserGDP('04-2020')) ? 1.0 : 1e-6; });
+            .style('opacity', function (d) { return (d.Date < dateParserGDP('05-2020')) ? 1.0 : 1e-6; });
         svg.selectAll(".bar-gdp")
             .transition()
             .duration(600)
-            .attr('y', function (d) { return (d.Date < dateParserGDP('04-2020')) ? (y_gdp(d.GDP)) : height; })
-            .attr('height', function (d) { return (d.Date < dateParserGDP('04-2020')) ? height - (y_gdp(d.GDP)) : 0; })
-            .style('opacity', function (d) { return (d.Date < dateParserGDP('04-2020')) ? 1.0 : 1e-6; });
+            .attr('y', function (d) { return (d.Date < dateParserGDP('05-2020')) ? (y_gdp(d.GDP)) : height; })
+            .attr('height', function (d) { return (d.Date < dateParserGDP('05-2020')) ? height - (y_gdp(d.GDP)) : 0; })
+            .style('opacity', function (d) { return (d.Date < dateParserGDP('05-2020')) ? 1.0 : 1e-6; });
 
     }
 
