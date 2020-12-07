@@ -12,6 +12,13 @@ body {
     padding-top: 60px;
 }
 
+#canvas {
+    /*margin-left: 60px;*/
+    /*margin-top: 0px;*/
+    border:2px solid;
+    border-color: white;
+}
+
 #sections {
     position: relative;
     display: inline-block;
@@ -69,6 +76,12 @@ body {
     font-size:48px;
     text-anchor: middle;
     fill: #F0F4F8;
+}
+
+#covid-title {
+    fill: #486581;
+    padding-left: 5vh;
+    padding-bottom: 10vh;
 }
 
 .axis path,

@@ -18,7 +18,7 @@ class MapVis {
         this.parseDate = d3.timeParse("%m/%d/%Y");
 
         this.colors = d3.scaleLinear()
-            .range(['#f9f9f9', '#008080']);
+            .range(['#FFFFFF', '#EAA0A1']);
 
         this.initMap()
     }
@@ -218,7 +218,7 @@ class MapVis {
                      <h3> ${thisStatesInfo.state}<h3>
                      <h4> Population: ${thisStatesInfo.population}</h4>
                      <h4> Loans (absolute): ${thisStatesInfo.loanCount}</h4>
-                     <h4> Loans (relative): ${thisStatesInfo.relLoanCount}</h4>
+                     <h4> Loans (relative per capita): ${thisStatesInfo.relLoanCount}</h4>
                      <h4> $5-10 million: ${thisStatesInfo.a}</h4>  
                      <h4> $2-5 million: ${thisStatesInfo.b}</h4>
                      <h4> $1-2 million: ${thisStatesInfo.c}</h4>
@@ -248,10 +248,10 @@ class MapVis {
         // append legend
         mapObject.linearGradient.append("stop")
             .attr("offset", "0%")
-            .attr("stop-color", '#f9f9f9');
+            .attr("stop-color", '#FFFFFF');
         mapObject.linearGradient.append("stop")
             .attr("offset", "100%")
-            .attr("stop-color", '#008080');
+            .attr("stop-color", '#EAA0A1');
         mapObject.legend.style("fill", "url(#linear-gradient)");
 
     }

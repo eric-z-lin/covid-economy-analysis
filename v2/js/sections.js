@@ -42,6 +42,7 @@ function scrollVis(salesData, salesConfigs) {
     let yAxis = d3.axisLeft()
         .scale(y);
     let salesDisplayData = salesData;
+    let salesLineOn = false;
 
     // main svg used for visualization
     var svg = null;
@@ -149,6 +150,7 @@ function scrollVis(salesData, salesConfigs) {
                 .style("opacity", "1")
                 .style("text-anchor", "end")
                 .style("font-size", "10px")
+                .style("fill", "white")
                 .text("Sales ($M)");
 
             setupVis(wordData, fillerCounts, salesData, configs, gdpData, statesMapData, usMapData, censusData, pppData);
@@ -158,6 +160,8 @@ function scrollVis(salesData, salesConfigs) {
     };
 
     function updateSalesLine(svg) {
+        console.log(salesData);
+        console.log(salesDisplayData);
         // update domains
         x.domain(d3.extent(salesDisplayData, d => d.month));
         y.domain([0, 110000])
@@ -280,6 +284,7 @@ function scrollVis(salesData, salesConfigs) {
             .style("opacity", "1")
             .style("text-anchor", "end")
             .style("font-size", "10px")
+            .style("fill", "white")
             .text("GDP ($T)");
 
         // draw bars
@@ -353,7 +358,7 @@ function scrollVis(salesData, salesConfigs) {
     }
 
     function generateFundMap(svg, usMapData, censusData, pppData) {
-        let myMapVis = new MapVis('mapDiv', usMapData, censusData, pppData, 'loanCount');
+        let myMapVis = new MapVis('mapDiv', usMapData, censusData, pppData, 'relLoanCount');
 
         // Hide
         document.getElementById("mapDiv").style.display = "none";
@@ -374,19 +379,24 @@ function scrollVis(salesData, salesConfigs) {
             .attr('transform', 'translate(0,' + height + ')');
         g.select('.x.axis').style('opacity', 0);
 
-        // title
-        g.append('text')
-            .attr('class', 'title covid-title')
-            .attr('x', width / 2)
-            .attr('y', height / 3)
-            .style('fill', '#829ABD')
-            .text('COVID-19');
+        // Text box
+        document.getElementById("textBoxID").style.display = "none";
+        // Sales drawing
+        document.getElementById("drawCanvas").style.display = "none";
 
+        // title
         g.append('text')
             .attr('class', 'sub-title covid-title')
             .attr('x', width / 2)
+            .attr('y', height / 3)
+            .style('fill', '#829ABD')
+            .text('A Viral Tale of');
+
+        g.append('text')
+            .attr('class', 'title covid-title')
+            .attr('x', width / 2)
             .attr('y', (height / 3) + (height / 5))
-            .text('Recession');
+            .text('Consumerism');
 
         g.selectAll('.covid-title')
             .attr('opacity', 0);
@@ -401,32 +411,57 @@ function scrollVis(salesData, salesConfigs) {
             .attr('class', 'sub-text credits-title')
             .attr('x', width / 2)
             .attr('y', (height / 3) + (height / 5))
-            .text('Ask for more federal funding!');
+            .text('Support your local businesses!');
         g.selectAll('.credits-title')
             .attr('opacity', 0);
 
         // count filler word count title
-        g.append('text')
-            .attr('class', 'title count-title highlight')
-            .attr('x', width / 2)
-            .attr('y', height / 3)
-            .text('12.6 Million')
-            .style("color", "#EAA0A1");
-
-        g.append('text')
-            .attr('class', 'sub-title count-title')
-            .attr('x', width / 2)
-            .attr('y', (height / 3) + (height / 5))
-            .text('COVID-19 Cases');
-
-        g.selectAll('.count-title')
-            .attr('opacity', 0);
+        // g.append('text')
+        //     .attr('class', 'title count-title highlight')
+        //     .attr('x', width / 2)
+        //     .attr('y', height / 3)
+        //     .text('12.6 Million')
+        //     .style("color", "#EAA0A1");
+        //
+        // g.append('text')
+        //     .attr('class', 'sub-title count-title')
+        //     .attr('x', width / 2)
+        //     .attr('y', (height / 3) + (height / 5))
+        //     .text('COVID-19 Cases');
+        //
+        // g.selectAll('.count-title')
+        //     .attr('opacity', 0);
 
         // Images
+
+        // Covid consumer expenditure line
         g.append('image')
+            .attr('id', 'sales_img')
             .attr('width', width)
             .attr('height', height)
             .attr("xlink:href", "covid.png")
+            .attr('opacity', 0);
+        // Meet patrice image
+        g.append('image')
+            .attr('id', 'patrice_img')
+            .attr('width', width)
+            .attr('height', height)
+            .attr("xlink:href", "Meditation-amico.png")
+            .attr('opacity', 0);
+        // Closed image
+        g.append('image')
+            .attr('id', 'closed_img')
+            .attr('width', width)
+            .attr('height', height)
+            .attr("xlink:href", "Depression-bro.png")
+            .attr('opacity', 0);
+        // Uncertain image
+        g.append('image')
+            .attr('id', 'uncertain_img')
+            .attr('width', width)
+            .attr('height', height)
+            .attr("xlink:href", "Worried-amico.png")
+            .attr('opacity', 0);
 
         // square grid
         // @v4 Using .merge here to ensure
@@ -477,16 +512,21 @@ function scrollVis(salesData, salesConfigs) {
         // activateFunctions are called each
         // time the active section changes
         activateFunctions[0] = showTitle;
-        activateFunctions[1] = showFillerTitle;
-        activateFunctions[2] = showGrid;
-        activateFunctions[3] = highlightGrid;
-        activateFunctions[4] = showMapGrid;
-        activateFunctions[5] = showHistPart;
-        activateFunctions[6] = showHistAll;
-        activateFunctions[7] = showConsumption;
-        activateFunctions[8] = showConsumptionCovid;
-        activateFunctions[9] = showFunding;
-        activateFunctions[10] = showCredits;
+        activateFunctions[1] = showPatrice; // Meet patrice
+        activateFunctions[2] = showGrid; // When it all began
+        activateFunctions[3] = highlightGrid; // Lockdowns in march
+        activateFunctions[4] = showMapGrid; // A new normal
+        activateFunctions[5] = showClosed; // Sorry, we're closed
+        activateFunctions[6] = showHistPart; // A sharp drop
+        activateFunctions[7] = showHistAll; // The recovery so far
+        activateFunctions[8] = showUncertainty; // Overwhelming uncertainty
+        activateFunctions[9] = drawSales; // Consumer expenditure (draw)
+        activateFunctions[10] = revealSales; // Consumer expenditure (reveal)
+        activateFunctions[11] = showConsumption; // A tale of two recessions
+        activateFunctions[12] = showConsumptionCovid; // Consumer expenditure by sector
+        activateFunctions[13] = showFunding; // Federal funding
+        activateFunctions[14] = showTextBox; // We're in this fight together (insert text box)
+        activateFunctions[15] = showCredits; // Credits
 
         // updateFunctions are called while
         // in a particular section to update
@@ -524,29 +564,24 @@ function scrollVis(salesData, salesConfigs) {
      *
      */
     function showTitle() {
-        g.selectAll('.count-title')
-            .transition()
-            .duration(0)
-            .attr('opacity', 0);
-
+        // Hide
         d3.selectAll('.d3-tip-sales').remove();
         d3.selectAll('.d3-tip-bars').remove();
+        d3.selectAll('.d3-tip-grid').remove();
+        // Hide closed img
+        d3.select('#patrice_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
 
+        // Show
         g.selectAll('.covid-title')
             .transition()
             .duration(600)
             .attr('opacity', 1.0);
     }
 
-    /**
-     * showFillerTitle - filler counts
-     *
-     * hides: intro title
-     * hides: square grid
-     * shows: filler count title
-     *
-     */
-    function showFillerTitle() {
+    function showPatrice() {
         // Hide
         g.selectAll('.covid-title')
             .transition()
@@ -557,15 +592,16 @@ function scrollVis(salesData, salesConfigs) {
             .transition()
             .duration(0)
             .attr('opacity', 0);
-
         d3.selectAll('.d3-tip-sales').remove();
         d3.selectAll('.d3-tip-bars').remove();
+        d3.selectAll('.d3-tip-grid').remove();
 
         // Show
-        g.selectAll('.count-title')
+        d3.select('#patrice_img')
             .transition()
             .duration(600)
-            .attr('opacity', 1.0);
+            .attr('opacity', 1);
+
     }
 
     /**
@@ -584,6 +620,12 @@ function scrollVis(salesData, salesConfigs) {
             .attr('opacity', 0);
         d3.selectAll('.d3-tip-sales').remove();
         d3.selectAll('.d3-tip-bars').remove();
+
+        // Hide patrice img
+        d3.select('#patrice_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
 
         // Show
         g.selectAll('.state-square')
@@ -697,7 +739,7 @@ function scrollVis(salesData, salesConfigs) {
     }
 
     function showMapGrid() {
-        // Hide
+        // Hide GDP bars
         svg.select('.gdp-x-axis')
             .transition().duration(500)
             .style('opacity', 0);
@@ -713,6 +755,12 @@ function scrollVis(salesData, salesConfigs) {
             .style('opacity', 0);
         d3.selectAll('.d3-tip-sales').remove();
         d3.selectAll('.d3-tip-bars').remove();
+
+        // Hide closed img
+        d3.select('#closed_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
 
         // create tooltip
         tooltip_grid  = d3.select("#vis")
@@ -743,17 +791,26 @@ function scrollVis(salesData, salesConfigs) {
 
     }
 
+    function showClosed() {
+        // Hide GDP bars
+        svg.select('.gdp-x-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select('.gdp-y-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select('.gdp-y-axis-label')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.selectAll('.bar-gdp')
+            .transition()
+            .duration(600)
+            .style('opacity', 0);
+        d3.selectAll('.d3-tip-sales').remove();
+        d3.selectAll('.d3-tip-bars').remove();
 
-    /**
-     * showHistPart - shows the first part
-     *  of the histogram of filler words
-     *
-     * hides: grid
-     * hides: last half of histogram
-     * shows: first half of histogram
-     *
-     */
-    function showHistPart() {
+        // Hide grid
+        d3.selectAll('.d3-tip-grid').remove();
         g.selectAll('.state-square')
             .transition()
             .duration(800)
@@ -770,7 +827,32 @@ function scrollVis(salesData, salesConfigs) {
             .duration(0)
             .attr('opacity', 0);
 
+        // Show closed img
+        d3.select('#closed_img')
+            .transition()
+            .duration(800)
+            .attr('opacity', 1);
+
+    }
+
+
+    /**
+     * showHistPart - shows the first part
+     *  of the histogram of filler words
+     *
+     * hides: grid
+     * hides: last half of histogram
+     * shows: first half of histogram
+     *
+     */
+    function showHistPart() {
+        // Hide tip sales
         d3.selectAll('.d3-tip-sales').remove();
+        // Hide closed img
+        d3.select('#closed_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
 
         // create tooltip
         tooltip_bars  = d3.select("#vis")
@@ -830,6 +912,11 @@ function scrollVis(salesData, salesConfigs) {
         svg.selectAll('.salesline')
             .transition().duration(500)
             .attr('stroke-width', 0);
+        // Hide uncertain img
+        d3.select('#uncertain_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
 
         d3.selectAll('.d3-tip-sales').remove();
         // create tooltip
@@ -855,14 +942,8 @@ function scrollVis(salesData, salesConfigs) {
             .style('opacity', 1.0);
     }
 
-    /**
-     * showConsumption
-     *
-     * hides: everything
-     * shows: Sophie's histogram
-     *
-     */
-    function showConsumption() {
+    function showUncertainty() {
+        // Hide GDP bar
         svg.select('.gdp-x-axis')
             .transition().duration(500)
             .style('opacity', 0);
@@ -876,13 +957,110 @@ function scrollVis(salesData, salesConfigs) {
             .transition()
             .duration(600)
             .style('opacity', 0);
-
         d3.selectAll('.d3-tip-bars').remove();
+        d3.selectAll('.d3-tip-sales').remove();
+
+        // Hide sales drawing
+        document.getElementById("drawCanvas").style.display = "none";
+
+
+        // Show uncertain img
+        d3.select('#uncertain_img')
+            .transition()
+            .duration(800)
+            .attr('opacity', 1);
+    }
+
+    function drawSales() {
+        // Hide uncertain img
+        d3.select('#uncertain_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
+        // Hide consumption line
+        svg.select('.x-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select('.y-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select(".y-axis-label")
+            .transition().duration(500)
+            .style("opacity", 0);
+        svg.selectAll('.salesline')
+            .transition().duration(500)
+            .attr('stroke-width', 0);
+        // Hide sales reveal
+        d3.select('#sales_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
+
+        // Show sales drawing
+        document.getElementById("drawCanvas").style.display = "block";
+    }
+
+    function revealSales() {
+        // Hide sales
+        salesLineOn = false;
+        document.getElementById("drawCanvas").style.display = "none";
+
+        // Hide consumption line
+        svg.select('.x-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select('.y-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select(".y-axis-label")
+            .transition().duration(500)
+            .style("opacity", 0);
+        svg.selectAll('.salesline')
+            .transition().duration(500)
+            .attr('stroke-width', 0);
+        d3.selectAll('.d3-tip-sales').remove();
+
+        // Show sales reveal
+        d3.select('#sales_img')
+            .transition()
+            .duration(800)
+            .attr('opacity', 1);
+    }
+
+    /**
+     * showConsumption
+     *
+     * hides: everything
+     * shows: Sophie's line graph
+     *
+     */
+    function showConsumption() {
+        // Hide consumption line
+        svg.select('.x-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select('.y-axis')
+            .transition().duration(500)
+            .style('opacity', 0);
+        svg.select(".y-axis-label")
+            .transition().duration(500)
+            .style("opacity", 0);
+        svg.selectAll('.salesline')
+            .transition().duration(500)
+            .attr('stroke-width', 0);
+        svg.selectAll('path')
+            .remove();
+        // Hide sales reveal
+        d3.select('#sales_img')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0);
 
 
         // Show
         salesDisplayData = salesData;
-        updateSalesLine(svg);
+        generateSalesLine(svg, salesData, salesConfigs);
+        // updateSalesLine(svg);
         // create sales tooltip
         tooltip_sales = d3.select("#vis")
             .append("div")
@@ -903,6 +1081,7 @@ function scrollVis(salesData, salesConfigs) {
         svg.selectAll('.salesline')
             .transition().duration(500)
             .attr('stroke-width', 3);
+        salesLineOn = true;
     }
 
     /**
@@ -920,6 +1099,27 @@ function scrollVis(salesData, salesConfigs) {
         document.getElementById("mapDiv").style.display = "none";
 
         // Show
+        // Reset if not coming from previous slide
+        if (salesLineOn == false) {
+            svg.selectAll('path')
+                .remove();
+            generateSalesLine(svg, salesData, salesConfigs);
+            updateSalesLine(svg);
+            // Sophie's sales line visualization
+            svg.select('.x-axis')
+                .transition().duration(500)
+                .style('opacity', 1);
+            svg.select('.y-axis')
+                .transition().duration(500)
+                .style('opacity', 1);
+            svg.select(".y-axis-label")
+                .transition().duration(500)
+                .style("opacity", 1);
+            svg.selectAll('.salesline')
+                .transition().duration(500)
+                .attr('stroke-width', 3);
+            console.log("added axes")
+        }
         salesDisplayData = salesData.filter((value, index) => {
             return ((value.month) >= (dateParser("Sunday, December 1, 2019")));
         });
@@ -929,6 +1129,18 @@ function scrollVis(salesData, salesConfigs) {
             .append("div")
             .attr("class", "d3-tip-sales")
             .style("visibility", "visible");
+        // svg.select('.x-axis')
+        //     .transition().duration(500)
+        //     .style('opacity', 1);
+        // svg.select('.y-axis')
+        //     .transition().duration(500)
+        //     .style('opacity', 1);
+        // svg.select(".y-axis-label")
+        //     .transition().duration(500)
+        //     .style("opacity", 1);
+        // svg.selectAll('.salesline')
+        //     .transition().duration(500)
+        //     .attr('stroke-width', 3);
     }
 
     function showFunding() {
@@ -951,14 +1163,15 @@ function scrollVis(salesData, salesConfigs) {
             .transition()
             .duration(600)
             .attr('opacity', 0.0);
+        salesLineOn = false;
+        document.getElementById("textBoxID").style.display = "none";
 
         // Show
         document.getElementById("mapDiv").style.display = "block";
     }
 
-
-    function showCredits() {
-        // Hide
+    function showTextBox () {
+        // Hide sales line
         svg.select('.x-axis')
             .transition().duration(500)
             .style('opacity', 0);
@@ -973,7 +1186,26 @@ function scrollVis(salesData, salesConfigs) {
             .attr('stroke-width', 0);
         d3.selectAll('.d3-tip-sales').remove();
         d3.selectAll('.d3-tip-bars').remove();
+        // Hide map
         document.getElementById("mapDiv").style.display = "none";
+        // Hide Credits
+        g.selectAll('.credits-title')
+            .transition()
+            .duration(600)
+            .attr('opacity', 0.0);
+
+        // Show text box
+        document.getElementById("textBoxID").style.display = "block";
+
+    }
+
+
+    function showCredits() {
+        // Hide text box
+        document.getElementById("textBoxID").style.display = "none";
+        // Hide map
+        document.getElementById("mapDiv").style.display = "none";
+
 
         // Show
         g.selectAll('.credits-title')
