@@ -1,7 +1,7 @@
 # covid-economy-analysis
 Harvard CS 171 Final Project
 
-Website hosted on: 
+Website hosted on: https://eric-z-lin.github.io.
 
 Developed by Eric Lin, Sophie Sun, and Verena Lin.
 
